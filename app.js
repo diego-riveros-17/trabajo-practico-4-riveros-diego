@@ -7,9 +7,9 @@ const PORT = 3000;
 
 app.use(express.json());
 
-app.use("/", moviesRouter);
+app.use("/api", moviesRouter);
 
 app.listen(PORT, async () => {
-  await startDB;
+  await startDB();
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
