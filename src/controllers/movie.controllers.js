@@ -1,7 +1,9 @@
 import { Movie } from "../models/movie.models.js";
 
-export const obtenerTodasLasPeliculas = (req, res) => {
+export const obtenerTodasLasPeliculas = async (req, res) => {
   try {
+    const movies = await Movie.findAll();
+
     return res.status(200).json(movies);
   } catch (error) {
     return res.status(500).json({
@@ -10,9 +12,11 @@ export const obtenerTodasLasPeliculas = (req, res) => {
   }
 };
 
-export const obtenerUnaPelicula = (req, res) => {
+export const obtenerUnaPelicula = async (req, res) => {
   try {
-    return res.status(200).json(movies);
+    const idMovie = req.params.id;
+    const movie = await Movie.findByPk(idMovie);
+    return res.status(200).json(movie);
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
@@ -23,29 +27,43 @@ export const obtenerUnaPelicula = (req, res) => {
 export const insertarUnaPelicula = async (req, res) => {
   try {
     const { title, genre, duration, year, synopsis } = req.body;
+    const movies = await Movie.findAll();
 
     if (!title || !genre || duration === "" || !year) {
-      return res.status(200).json({
-        message: "Verifique que los campos obligatorios no esten vacios",
+      return res.status(400).json({
+        message:
+          "Verifique que los campos titulo, género, duración o año de estreno no esten vacios",
       });
-    }
+    } else {
+      if (!Number.isInteger(duration) || duration === 0 || duration < 0) {
+        return res.status(400).json({
+          message:
+            "La duracion de la película debe ser un numero entero mayor a 0",
+        });
+      }
 
-    if (!Number.isInteger(duration) || duration === 0 || duration < 0) {
-      return res.status(200).json({
-        message: "La duracion debe ser un numero entero mayor a 0",
-      });
-    }
+      if (year <= 1888 || year >= 2026) {
+        return res.status(400).json({
+          message:
+            "La fecha de estreno debe ser una fecha válida, entre 1888 y 2025",
+        });
+      }
 
-    if (year <= 1888 && year < 2026) {
-      return res.status(200).json({
-        message: "Ingrese un fecha válida",
+      const movieExist = movies.find((peli) => {
+        return peli.title.toUpperCase() === title.toUpperCase();
       });
-    }
 
-    if (typeof synopsis !== "string") {
-      return res.status(200).json({
-        message: "La synopsis debe ser un texto",
-      });
+      if (movieExist) {
+        return res.status(400).json({
+          message: "Ya existe una película, con el nombre que desea ingresar",
+        });
+      }
+
+      if (typeof synopsis !== "string") {
+        return res.status(400).json({
+          message: "La synopsis debe ser un resumen breve de la película",
+        });
+      }
     }
 
     const movie = await Movie.create({
@@ -67,8 +85,17 @@ export const insertarUnaPelicula = async (req, res) => {
   }
 };
 
-export const modificarPelicula = (req, res) => {
+export const modificarPelicula = async (req, res) => {
   try {
+    const idMovie = req.params.id;
+    const movie = await Movie.findByPk(idMovie);
+
+    if (!movie) {
+      return res.status(404).json({
+        message:
+          "La pelicula que deseada modificar no existe en la base de datos",
+      });
+    }
     return res.status(200).json(movies);
   } catch (error) {
     return res.status(500).json({

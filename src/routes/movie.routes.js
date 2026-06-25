@@ -19,7 +19,7 @@ moviesRouter.get("/movies/:id", obtenerUnaPelicula);
 moviesRouter.post("/movies", insertarUnaPelicula);
 
 //Modificar una pelicula
-moviesRouter.put("/:id", modificarPelicula);
+moviesRouter.put("/movies/:id", modificarPelicula);
 
 //Eliminar una pelicula
 moviesRouter.delete("/movies/:id", eliminarPelicula);
