@@ -89,6 +89,7 @@ export const modificarPelicula = async (req, res) => {
   try {
     const idMovie = req.params.id;
     const movie = await Movie.findByPk(idMovie);
+    const { title, genre, duration, year, synopsis } = req.body;
 
     if (!movie) {
       return res.status(404).json({
@@ -96,7 +97,18 @@ export const modificarPelicula = async (req, res) => {
           "La pelicula que deseada modificar no existe en la base de datos",
       });
     }
-    return res.status(200).json(movies);
+
+    await movie.update({
+      title,
+      genre,
+      duration,
+      year,
+      synopsis,
+    });
+
+    return res.status(200).json({
+      message: "Película modificada correctamente",
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
@@ -104,9 +116,23 @@ export const modificarPelicula = async (req, res) => {
   }
 };
 
-export const eliminarPelicula = (req, res) => {
+export const eliminarPelicula = async (req, res) => {
   try {
-    return res.status(200).json(movies);
+    const idMovie = req.params.id;
+    const movie = await Movie.findByPk(idMovie);
+
+    if (!movie) {
+      return res.status(404).json({
+        message:
+          "La pelicula que deseada eliminar no existe en la base de datos",
+      });
+    }
+
+    await movie.destroy();
+
+    return res.status(200).json({
+      message: "Película eliminada correctamente",
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
