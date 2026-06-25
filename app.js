@@ -1,15 +1,15 @@
 import express from "express";
-
-const PORT = 3000;
+import { moviesRouter } from "./src/routes/movie.routes.js";
+import { startDB } from "./src/config/database.js";
 
 const app = express();
+const PORT = 3000;
 
-app.use("/", (req, res) => {
-  return res.json({
-    message: "Prueba del servidor",
-  });
-});
+app.use(express.json());
 
-app.listen(PORT, () => {
+app.use("/api", moviesRouter);
+
+app.listen(PORT, async () => {
+  await startDB();
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
